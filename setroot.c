@@ -1198,6 +1198,42 @@ make_bg( struct screen *s )
     return canvas;
 }
 
+int
+setRootAtoms(Pixmap pixmap)
+{
+  Atom atom_root, atom_eroot, type;
+  unsigned char *data_root, *data_eroot;
+  int format;
+  unsigned long length, after;
+
+  atom_root = XInternAtom(XDPY, "_XROOTPMAP_ID", True);
+  atom_eroot = XInternAtom(XDPY, "ESETROOT_PMAP_ID", True);
+
+  // doing this to clean up after old background
+  if (atom_root != None && atom_eroot != None) {
+    XGetWindowProperty(XDPY, ROOT_WIN, atom_root, 0L, 1L, False, AnyPropertyType, &type, &format, &length, &after, &data_root);
+
+    if (type == XA_PIXMAP) {
+      XGetWindowProperty(XDPY, ROOT_WIN, atom_eroot, 0L, 1L, False, AnyPropertyType, &type, &format, &length, &after, &data_eroot);
+
+      if (data_root && data_eroot && type == XA_PIXMAP && *((Pixmap *) data_root) == *((Pixmap *) data_eroot))
+        XKillClient(XDPY, *((Pixmap *) data_root));
+    }
+  }
+
+  atom_root = XInternAtom(XDPY, "_XROOTPMAP_ID", False);
+  atom_eroot = XInternAtom(XDPY, "ESETROOT_PMAP_ID", False);
+
+  if (atom_root == None || atom_eroot == None)
+    return 0;
+
+  // setting new background atoms
+  XChangeProperty(XDPY, ROOT_WIN, atom_root, XA_PIXMAP, 32, PropModeReplace, (unsigned char *) &pixmap, 1);
+  XChangeProperty(XDPY, ROOT_WIN, atom_eroot, XA_PIXMAP, 32, PropModeReplace, (unsigned char *) &pixmap, 1);
+
+  return 1;
+}
+
 int main(int argc, char** args)
 {
     XDPY = XOpenDisplay(NULL);
@@ -1238,6 +1274,7 @@ int main(int argc, char** args)
 
     if (bg != None) {
         set_pixmap_property(bg);
+        setRootAtoms(bg);
         XSetWindowBackgroundPixmap(XDPY, ROOT_WIN, bg);
 
         desktop_window = find_desktop(ROOT_WIN);
