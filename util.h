@@ -65,7 +65,7 @@ parse_float( const char* floatstring )
 	char **invalid_digits = malloc(sizeof(char*));
 	verify(invalid_digits);
 
-	long int val = strtof(floatstring, invalid_digits);
+	float val = strtof(floatstring, invalid_digits);
 
 	/* if we don't get a float*/
 	if ((*invalid_digits)[0] != '\0') {
