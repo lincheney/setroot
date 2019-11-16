@@ -1150,6 +1150,9 @@ make_bg( struct screen *s )
             if (w->brightness != 0.0)   change_brightness(w);
             if (w->contrast != 1.0)     change_contrast(w);
             if (w->tint != NULL)        tint_image(w);
+            /*post process transformed image*/
+            if (w->blur != 0)       blur_wall(w);
+            if (w->sharpen != 0)    sharpen_wall(w);
 
             /*if span, set dimensions of monitor to be screen*/
             if (w->span != 0) {
@@ -1183,9 +1186,6 @@ make_bg( struct screen *s )
             default:
                 break;
             }
-            /*post process transformed image*/
-            if (w->blur != 0)       blur_wall(w);
-            if (w->sharpen != 0)    sharpen_wall(w);
         }
         /*set context and render image to drawable*/
         imlib_context_set_image(w->image);
