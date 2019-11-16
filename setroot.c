@@ -856,7 +856,7 @@ change_brightness( struct wallpaper *w )
     verify(adjustments);
 
     imlib_context_set_color_modifier(adjustments);
-    imlib_modify_color_modifier_contrast(w->brightness);
+    imlib_modify_color_modifier_brightness(w->brightness);
     imlib_apply_color_modifier();
     imlib_free_color_modifier();
 }
